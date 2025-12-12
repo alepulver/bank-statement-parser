@@ -1,36 +1,63 @@
-# Introduction
+# hsbc-parser
 
-...
+Parser de PDFs de HSBC Argentina para:
+- Tarjetas **Mastercard** (formato moderno 2024–2025)
+- Tarjetas **Visa**
+- **Caja de Ahorro** (extracto / resumen)
 
-Modules for data extraction:
+Genera CSVs:
+- `statements.csv` (1 fila por PDF)
+- `transactions.csv` (movimientos unificados)
+- `warnings.csv` (auditoría del parseo)
 
-- [pdfplumber](https://pypi.org/project/pdfplumber/)
-- [tabula-py](https://tabula-py.readthedocs.io/en/latest/)
-- [pymupdf](https://pymupdf.readthedocs.io/en/latest/)
+## Instalación
 
-Python project tools:
+```bash
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-- Cookiecutter
-- Poetry
-- PyScaffold
+## Uso
 
-# Roadmap
+Procesar una carpeta con PDFs:
 
-- [ ] Projece structure
-  - [x] Upload to Github
-  - [ ] Create skeleton using one of the proposed tools
-- [ ] Data extraction
-  - [ ] Create script to automatically convert from PDF to CSV using each method (pdfplumger, tabula-py and PyMuPDF)
-  - [ ] Try variations (laparams for pdfplumber, coordinates for PyMyPDF, maybe in tabula-py too) and adjust for each document type
-  - [ ] Split into modules for HSBC Visa, HSBC MasterCard, HSBC CA and BBVA Visa
-  - [ ] Upload one sample per module (without names and changed amounts) to Github for unit tests and development
-  - [ ] Add automatic detection for each module, and an error if a more than one apply for a PDF
-  - [ ] For each extraction module, add warnings if a line looks like an amount but can't be extracted
-- [ ] Statement processing
-  - [ ] Allow processing multiple files at once, generating summaries (carrying over installments) in a CSV or Excel
-  - [ ] Search entry names using ChatGPT to classify, or ask it to generate a pattern for local classification
-  - [ ] Support extension cards
-  - [ ] Support amounts in ARS and USD
-  - [ ] Support previous statement amount, taxes, etc
-- [ ] Next steps
-  - [ ] Add a basic web UI and deploy, allowing multiple uploads
+```bash
+python run.py data/input --out data/output
+```
+
+Procesar un PDF individual:
+
+```bash
+python run.py "data/input/HSBC MasterCard 2025-01.pdf" --out data/output
+```
+
+Forzar el tipo:
+
+```bash
+python run.py data/input --tipo visa --out data/output
+```
+
+## Salida
+
+Los CSVs se generan en la carpeta indicada por `--out`.
+
+⚠️ Recomendación: mantener `data/` fuera del repo usando `.gitignore` (incluido).
+
+## Esquema
+
+Ver `docs/schema.md`.
+
+## Sanity tests (básicos)
+
+Ejecutar:
+
+```bash
+python -m unittest -q
+```
+
+Estos tests no validan montos contra el banco; validan que:
+- se extraigan transacciones
+- no haya transacciones con `moneda` vacía
+- no se cuelen headers de tabla como movimientos (Visa)
+- no haya warnings `ERROR` (si los hay, alertan cambio de formato o bug)
