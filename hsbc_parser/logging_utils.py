@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 
-def configure_logging(*, log_file: str | Path = "outputs/hsbc_parser.log", level: str = "INFO") -> logging.Logger:
+def configure_logging(*, log_file: str | Path = "data/logs/hsbc_parser.log", level: str = "INFO") -> logging.Logger:
     logger = logging.getLogger("hsbc_parser")
     logger.setLevel(getattr(logging, level.upper(), logging.INFO))
 
@@ -37,4 +37,3 @@ def configure_logging(*, log_file: str | Path = "outputs/hsbc_parser.log", level
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     base = logging.getLogger("hsbc_parser")
     return base if not name else base.getChild(name)
-

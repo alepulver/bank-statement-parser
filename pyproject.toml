@@ -18,4 +18,4 @@ hsbc-parser = "hsbc_parser.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["hsbc_parser*"]
-exclude = ["tests*", "docs*", "test_pdfs*"]
+exclude = ["tests*", "docs*", "data*", "outputs*"]

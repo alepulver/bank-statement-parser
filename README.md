@@ -25,10 +25,10 @@ pip install -e . --no-build-isolation
 Parse a folder of PDFs:
 
 ```bash
-python -m hsbc_parser.cli test_pdfs --out data/output
+python -m hsbc_parser.cli data/input --out data/output
 # or if you installed the entrypoint:
-hsbc-parser test_pdfs --out data/output
-# compatibility: python run.py test_pdfs --out data/output
+hsbc-parser data/input --out data/output
+# compatibility: python run.py data/input --out data/output
 ```
 
 Parse a single PDF:
@@ -46,14 +46,15 @@ hsbc-parser data/input --type visa --out data/output
 Logging (console + file by default):
 
 ```bash
-hsbc-parser test_pdfs --out data/output --log-file outputs/hsbc_parser.log --log-level INFO
+hsbc-parser data/input --out data/output --log-file data/logs/hsbc_parser.log --log-level INFO
 ```
 
 ## Output
 
 CSV files are written to the folder passed via `--out`.
 
-Recommendation: keep local `data/` and `outputs/` out of git (see `.gitignore`).
+Recommendation: keep local PDFs and generated outputs under `data/` out of git (see `.gitignore`).
+This repo expects PDFs in `data/input/`, generated CSVs in `data/output/`, and logs in `data/logs/`.
 
 ## Schema
 

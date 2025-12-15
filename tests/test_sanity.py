@@ -14,17 +14,16 @@ class TestSanity(unittest.TestCase):
         if parse_pdf is None or export_csv is None:
             self.skipTest("Dependencies not installed (run inside .venv).")
 
-        # Prefer sample PDFs shipped with repo; fallback to user-provided `data/input`.
-        in_dir = Path("test_pdfs") if Path("test_pdfs").exists() else Path("data/input")
+        in_dir = Path("data/input")
         if not in_dir.exists():
-            self.skipTest("No PDFs found (test_pdfs or data/input).")
+            self.skipTest("No PDFs found (data/input).")
 
         pdfs = list(in_dir.glob("*.pdf"))
         if not pdfs:
             self.skipTest("No PDFs to test.")
 
         parsers = [parse_pdf(str(p)) for p in pdfs]
-        df_s, df_t, df_w = export_csv(parsers, "outputs/unittest_run")
+        df_s, df_t, df_w = export_csv(parsers, "data/output/unittest_run")
 
         self.assertGreater(len(df_t), 0, "No transactions extracted")
         self.assertEqual(df_t["moneda"].isna().sum(), 0, "Some transactions have empty currency")

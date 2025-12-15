@@ -34,8 +34,8 @@ def main(argv: Iterable[str] | None = None) -> None:
     )
     parser.add_argument(
         "--log-file",
-        default="outputs/hsbc_parser.log",
-        help="Log file path (default: outputs/hsbc_parser.log)",
+        default="data/logs/hsbc_parser.log",
+        help="Log file path (default: data/logs/hsbc_parser.log)",
     )
     parser.add_argument(
         "--log-level",

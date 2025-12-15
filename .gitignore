@@ -1,9 +1,15 @@
-# Local personal data (NO subir a GitHub)
-data/
+# Local data (do not commit real statements or generated outputs)
+data/input/**/*.pdf
+
+data/output/**
+!data/output/.gitkeep
+
+data/logs/**
+!data/logs/.gitkeep
+
+# Legacy output folder (pre `data/`)
 outputs/
-*.pdf
-*.csv
-*.zip
+
 *.egg-info/
 
 # Python
