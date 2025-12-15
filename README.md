@@ -63,8 +63,13 @@ See `docs/schema.md`.
 ## Known issues
 
 - **Visa totals may not reconcile** in some PDFs when text extraction collapses/merges table columns; this shows up as `BALANCE_SUM_MISMATCH` in `warnings.csv`.
+- PDF text extraction sometimes interleaves **terms & conditions** text into the transactions stream (rates, installment offers, etc.). The parser tries to ignore these lines, but it’s heuristic and may need tuning for new statement formats.
 - Some statement metadata is best-effort and may be missing; missing fields are reported as `MISSING_STATEMENT_FIELD`.
 - Do not commit real bank statements to git. Use sanitized fixtures/tests and keep local PDFs in `data/` or another ignored folder.
+
+## Parsing notes
+
+See `docs/parsing.md` for per-format details and limitations.
 
 ## Tests
 

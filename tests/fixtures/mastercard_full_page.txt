@@ -1,0 +1,20 @@
+HSBC MASTERCARD
+Estado de cuenta al: 30-May-24 Saldo actual: $ 1.180,50 U$S 0,00
+Cierre Anterior: 02-May-24
+SALDO ANTERIOR 1.000,00 0,00
+SALDO ACTUAL 1.180,50 0,00
+
+08-May-24 PALLADIUM PALACE(DOM,USD, 39,00) 00818 39,00
+10-May-24 GIESSO ARCOS 04252 200,00
+11-May-24 TIENDA EJEMPLO 07/18 07777 5,00
+
+DEV IMPUESTO PAIS
+-20,00
+
+20-May-24 IVA) 80,48%. Estas mismas tasas aplicarán para los servicios: Adelantos en un
+Abonando el pago mínimo de $ 49.610,00, el saldo adeudado de $ 448.098,76
+TEM 4,11% TEA 63,23%. CFT Efectivo (sin IVA) 63,23%, CFT Efectivo (con
+
+21-May-24 SHOULD_NOT_PARSE_AFTER_TAIL 999,99
+
+TOTAL TITULAR APELLIDO NOMBRE 205,00 0,00

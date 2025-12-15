@@ -15,6 +15,7 @@ from .utils import (
     strip_trailing_amounts,
     extract_trailing_operation_id,
     is_statement_commentary_line,
+    is_statement_tail_conditions_start,
 )
 
 class HSBCVisaParser(BaseParser):
@@ -66,6 +67,9 @@ class HSBCVisaParser(BaseParser):
 
         current_person = "TITULAR"
         ignored = 0
+        in_tail_conditions = False
+        in_transactions_section = False
+        saw_any_transaction = False
 
         for page in pages:
             for raw in page.split("\n"):
@@ -76,6 +80,15 @@ class HSBCVisaParser(BaseParser):
 
                 # Filter table headers
                 if any(h in up for h in self.HEADER_GUARD):
+                    in_transactions_section = True
+                    continue
+                if (
+                    not in_tail_conditions
+                    and (in_transactions_section or saw_any_transaction)
+                    and is_statement_tail_conditions_start(line)
+                ):
+                    in_tail_conditions = True
+                if in_tail_conditions:
                     continue
                 if is_statement_commentary_line(line):
                     continue
@@ -186,6 +199,7 @@ class HSBCVisaParser(BaseParser):
                     installment_number=inst_num,
                     installment_total=inst_total,
                 ))
+                saw_any_transaction = True
 
         if not self.transactions:
             self.warn("ERROR", "NO_TRANSACTIONS", "No transactions detected")

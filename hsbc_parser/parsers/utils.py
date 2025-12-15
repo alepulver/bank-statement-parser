@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from datetime import date, timedelta
 
 def parse_amount(s: str) -> float:
@@ -216,22 +217,65 @@ def strip_paren_currency_amount(s: str) -> str:
 
 def is_statement_commentary_line(text: str) -> bool:
     """Heuristic: ignore non-transaction lines (rates, plans, conditions, etc.)."""
+    # PDF text can include accents; normalize to improve matching ("mínimo" vs "minimo").
     up = norm_space(text).upper()
+    up_ascii = "".join(
+        ch for ch in unicodedata.normalize("NFD", up) if unicodedata.category(ch) != "Mn"
+    )
     if not up:
         return False
 
     # Common finance/conditions blocks
-    if any(tok in up for tok in ("TNA:", "TEA:", "CFT", "COSTO FINANCIERO", "TASA", "TIP:")):
+    if any(tok in up_ascii for tok in ("TNA", "TEA", "TEM", "CFT", "COSTO FINANCIERO", "TASA", "TIP")):
         return True
-    if "PLAN V" in up or "PAGO MINIMO" in up and "ABONANDO" in up:
+    if "PLAN V" in up_ascii:
+        return True
+    if "ABONANDO EL PAGO" in up_ascii or ("ABONANDO" in up_ascii and "PAGO MIN" in up_ascii):
+        return True
+    if "%" in up_ascii and ("ESTAS MISMAS TASAS" in up_ascii or "TASAS" in up_ascii or "APLICARAN" in up_ascii):
         return True
 
     # Installment plan offers (not card purchases)
-    if "CUOTAS" in up and "%" in up:
+    if "CUOTAS" in up_ascii and "%" in up_ascii:
         return True
-    if ("CON IVA" in up or "SIN IVA" in up) and "CUOTAS" in up and "%" in up:
+    if ("CON IVA" in up_ascii or "SIN IVA" in up_ascii) and "CUOTAS" in up_ascii and "%" in up_ascii:
         return True
-    if re.search(r"\bCUOTAS?\s+DE\s+\\$", up) and ("TNA:" in up or "TEA:" in up or "CFT" in up):
+    if re.search(r"\bCUOTAS?\s+DE\s+\\$", up_ascii) and any(tok in up_ascii for tok in ("TNA", "TEA", "CFT")):
+        return True
+
+    return False
+
+
+def is_statement_tail_conditions_start(text: str) -> bool:
+    """Detect the start of trailing terms/conditions blocks.
+
+    Some PDFs place long informational sections after the last transactions. When text extraction
+    interleaves these into the transaction stream, it can create false positives. Parsers may
+    treat this as a signal to stop parsing further transaction rows (while still allowing footer
+    totals/metadata, depending on the format).
+    """
+    up = norm_space(text).upper()
+    if not up:
+        return False
+
+    up_ascii = "".join(
+        ch for ch in unicodedata.normalize("NFD", up) if unicodedata.category(ch) != "Mn"
+    )
+
+    # Strong markers of conditions/rates blocks (not purchases).
+    if up_ascii.startswith("TASAS DE INTERESES"):
+        return True
+    if "EN CUMPLIMIENTO A LA NORMATIVA BCRA" in up_ascii or "NORMATIVA BCRA" in up_ascii:
+        return True
+    if up_ascii.startswith("ABONANDO EL PAGO MIN"):
+        return True
+
+    # Rate/conditions sentences (commonly long and split across lines).
+    if "CFT EFECTIVO" in up_ascii or "COSTO FINANCIERO" in up_ascii:
+        return True
+    if ("TEM" in up_ascii or "TEA" in up_ascii or "TNA" in up_ascii) and "%" in up_ascii:
+        return True
+    if "ESTAS MISMAS TASAS" in up_ascii and "%" in up_ascii:
         return True
 
     return False
