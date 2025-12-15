@@ -1,3 +1,0 @@
-- Fix discrepancies in mastercard (check warnings)
-- Add functionality to use positional information for better accuracy or simplicity, then remove generated ZIP file
-- Review manually to detect inconsistencies
