@@ -193,9 +193,12 @@ def strip_trailing_amounts(s: str) -> str:
 
 
 def extract_trailing_operation_id(s: str) -> tuple[str, str | None]:
-    """Extract trailing 4-6 digit operation/authorization ids."""
+    """Extract trailing operation/authorization ids.
+
+    Usually 4-10 digits, sometimes with a trailing suffix like `*`, `K`, or `U`.
+    """
     text = norm_space(s)
-    m = re.search(r"\b(\d{4,6})$", text)
+    m = re.search(r"(?:^|\s)(\d{4,10}(?:[A-Z]|\*)?)\s*$", text)
     if not m:
         return text, None
     op_id = m.group(1)

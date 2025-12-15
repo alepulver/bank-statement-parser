@@ -113,7 +113,7 @@ class HSBCVisaParser(BaseParser):
                     m_lead = re.match(r"^\d{2}\.\d{2}\.\d{2}\s+(.+)$", desc)
                     if m_lead:
                         desc = m_lead.group(1)
-                    m_op = re.match(r"^([0-9A-Z]{5,10})\*?\s+(.+)$", desc)
+                    m_op = re.match(r"^([0-9A-Z]{5,10}\*?)\s+(.+)$", desc)
                     if m_op and any(ch.isdigit() for ch in m_op.group(1)):
                         operation_id = m_op.group(1)
                         desc = m_op.group(2)
@@ -165,7 +165,7 @@ class HSBCVisaParser(BaseParser):
                 m_lead = re.match(r"^(\d{2}\.\d{2}\.\d{2})\s+(.+)$", desc)
                 if m_lead:
                     desc = m_lead.group(2)
-                m_op = re.match(r"^([0-9A-Z]{5,10})\*?\s+(.+)$", desc)
+                m_op = re.match(r"^([0-9A-Z]{5,10}\*?)\s+(.+)$", desc)
                 if m_op and any(ch.isdigit() for ch in m_op.group(1)):
                     operation_id = m_op.group(1)
                     desc = m_op.group(2)

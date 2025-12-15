@@ -62,7 +62,7 @@ class TestFixtureParsing(unittest.TestCase):
         self.assertAlmostEqual(glued.importe, -200.0, places=2)
         self.assertEqual(glued.installment_number, 5)
         self.assertEqual(glued.installment_total, 6)
-        self.assertEqual(glued.operation_id, "350257")
+        self.assertEqual(glued.operation_id, "350257*")
 
         # Financing offer should never be parsed as a transaction
         self.assertFalse(any("CUOTAS" in (t.descripcion or "").upper() for t in p.transactions))
@@ -98,6 +98,21 @@ class TestFixtureParsing(unittest.TestCase):
         sum_usd = round(sum(t.importe for t in p.transactions if t.moneda == "USD"), 2)
         self.assertEqual(sum_ars, 100.0)
         self.assertEqual(sum_usd, -0.5)
+
+    def test_extract_trailing_operation_id_keeps_suffixes(self):
+        from hsbc_parser.parsers.utils import extract_trailing_operation_id
+
+        cleaned, op_id = extract_trailing_operation_id("COMPRA EJEMPLO 12345*")
+        self.assertEqual(cleaned, "COMPRA EJEMPLO")
+        self.assertEqual(op_id, "12345*")
+
+        cleaned, op_id = extract_trailing_operation_id("COMPRA EJEMPLO 12345K")
+        self.assertEqual(cleaned, "COMPRA EJEMPLO")
+        self.assertEqual(op_id, "12345K")
+
+        cleaned, op_id = extract_trailing_operation_id("COMPRA EJEMPLO - 12345U")
+        self.assertEqual(cleaned, "COMPRA EJEMPLO")
+        self.assertEqual(op_id, "12345U")
 
     def test_cuenta_running_balance_infers_signs_and_continuations(self):
         from hsbc_parser.parsers.cuenta import HSBCCajaAhorroParser
