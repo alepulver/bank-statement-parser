@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,3 +7,15 @@ name = "hsbc-parser"
 version = "0.1.0"
 description = "HSBC Argentina PDF parser (Mastercard, Visa, Caja de Ahorro) -> CSV"
 requires-python = ">=3.10"
+readme = "README.md"
+dependencies = [
+    "pdfplumber>=0.10.0",
+    "pandas>=2.0.0",
+]
+
+[project.scripts]
+hsbc-parser = "hsbc_parser.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["hsbc_parser*"]
+exclude = ["tests*", "docs*", "test_pdfs*"]

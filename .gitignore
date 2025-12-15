@@ -1,8 +1,10 @@
 # Local personal data (NO subir a GitHub)
 data/
+outputs/
 *.pdf
 *.csv
 *.zip
+*.egg-info/
 
 # Python
 __pycache__/

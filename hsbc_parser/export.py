@@ -1,4 +1,5 @@
 from __future__ import annotations
+import csv
 import json
 from dataclasses import asdict
 from pathlib import Path
@@ -24,10 +25,13 @@ def export_csv(parsers, out_dir: str | Path):
 
     df_s = pd.DataFrame(statements)
     df_t = pd.DataFrame(transactions)
-    df_w = pd.DataFrame(warnings)
+    df_w = pd.DataFrame(
+        warnings,
+        columns=["archivo", "level", "code", "message", "context"],
+    )
 
-    df_s.to_csv(out / "statements.csv", index=False)
-    df_t.to_csv(out / "transactions.csv", index=False)
-    df_w.to_csv(out / "warnings.csv", index=False)
+    df_s.to_csv(out / "statements.csv", index=False, quoting=csv.QUOTE_NONNUMERIC)
+    df_t.to_csv(out / "transactions.csv", index=False, quoting=csv.QUOTE_NONNUMERIC)
+    df_w.to_csv(out / "warnings.csv", index=False, quoting=csv.QUOTE_NONNUMERIC)
 
     return df_s, df_t, df_w

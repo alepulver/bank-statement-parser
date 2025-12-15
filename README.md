@@ -1,63 +1,76 @@
 # hsbc-parser
 
-Parser de PDFs de HSBC Argentina para:
-- Tarjetas **Mastercard** (formato moderno 2024–2025)
-- Tarjetas **Visa**
-- **Caja de Ahorro** (extracto / resumen)
+PDF statement parser for HSBC Argentina:
+- Credit cards: **Mastercard** (modern format 2024–2025) and **Visa**
+- Bank account: **Savings account** (Caja de Ahorro)
 
-Genera CSVs:
-- `statements.csv` (1 fila por PDF)
-- `transactions.csv` (movimientos unificados)
-- `warnings.csv` (auditoría del parseo)
+Outputs CSVs:
+- `statements.csv` (1 row per PDF)
+- `transactions.csv` (unified movements)
+- `warnings.csv` (parsing audit)
 
-## Instalación
+## Install
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+
+# Optional: install the package (and create the `hsbc-parser` command)
+pip install -e . --no-build-isolation
 ```
 
-## Uso
+## Usage
 
-Procesar una carpeta con PDFs:
+Parse a folder of PDFs:
 
 ```bash
-python run.py data/input --out data/output
+python -m hsbc_parser.cli test_pdfs --out data/output
+# or if you installed the entrypoint:
+hsbc-parser test_pdfs --out data/output
+# compatibility: python run.py test_pdfs --out data/output
 ```
 
-Procesar un PDF individual:
+Parse a single PDF:
 
 ```bash
-python run.py "data/input/HSBC MasterCard 2025-01.pdf" --out data/output
+hsbc-parser "data/input/HSBC MasterCard 2025-01.pdf" --out data/output
 ```
 
-Forzar el tipo:
+Force parser type:
 
 ```bash
-python run.py data/input --tipo visa --out data/output
+hsbc-parser data/input --type visa --out data/output
 ```
 
-## Salida
-
-Los CSVs se generan en la carpeta indicada por `--out`.
-
-⚠️ Recomendación: mantener `data/` fuera del repo usando `.gitignore` (incluido).
-
-## Esquema
-
-Ver `docs/schema.md`.
-
-## Sanity tests (básicos)
-
-Ejecutar:
+Logging (console + file by default):
 
 ```bash
-python -m unittest -q
+hsbc-parser test_pdfs --out data/output --log-file outputs/hsbc_parser.log --log-level INFO
 ```
 
-Estos tests no validan montos contra el banco; validan que:
-- se extraigan transacciones
-- no haya transacciones con `moneda` vacía
-- no se cuelen headers de tabla como movimientos (Visa)
-- no haya warnings `ERROR` (si los hay, alertan cambio de formato o bug)
+## Output
+
+CSV files are written to the folder passed via `--out`.
+
+Recommendation: keep local `data/` and `outputs/` out of git (see `.gitignore`).
+
+## Schema
+
+See `docs/schema.md`.
+
+## Known issues
+
+- **Visa totals may not reconcile** in some PDFs when text extraction collapses/merges table columns; this shows up as `BALANCE_SUM_MISMATCH` in `warnings.csv`.
+- Some statement metadata is best-effort and may be missing; missing fields are reported as `MISSING_STATEMENT_FIELD`.
+- Do not commit real bank statements to git. Use sanitized fixtures/tests and keep local PDFs in `data/` or another ignored folder.
+
+## Tests
+
+Run:
+
+```bash
+python -m unittest discover -s tests -q
+```
+
+Tests are sanity-level: they validate extraction and basic invariants, not bank-grade reconciliation.

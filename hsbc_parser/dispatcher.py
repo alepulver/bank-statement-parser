@@ -4,6 +4,7 @@ import pdfplumber
 from .parsers.mastercard import HSBCMastercardParser
 from .parsers.visa import HSBCVisaParser
 from .parsers.cuenta import HSBCCajaAhorroParser
+from .logging_utils import get_logger
 
 def detect_type(text: str) -> str:
     up = text.upper()
@@ -17,26 +18,27 @@ def detect_type(text: str) -> str:
     return "mastercard"
 
 def parse_pdf(pdf_path: str, tipo: str | None = None):
-    """Parsea un PDF de HSBC.
+    """Parse an HSBC PDF.
 
     Args:
-        pdf_path: ruta al PDF
+        pdf_path: path to the PDF
         tipo: 'visa' | 'mastercard' | 'cuenta' | None (auto)
 
     Returns:
-        parser: instancia del parser usado (tiene .statement, .transactions, .warnings)
+        parser: parser instance used (has .statement, .transactions, .warnings)
     """
     with pdfplumber.open(pdf_path) as pdf:
         text = "\n".join((p.extract_text() or "") for p in pdf.pages)
 
     kind = tipo or detect_type(text)
 
+    logger = get_logger("parse").getChild(kind)
     if kind == "cuenta":
-        p = HSBCCajaAhorroParser(pdf_path)
+        p = HSBCCajaAhorroParser(pdf_path, logger=logger)
     elif kind == "visa":
-        p = HSBCVisaParser(pdf_path)
+        p = HSBCVisaParser(pdf_path, logger=logger)
     else:
-        p = HSBCMastercardParser(pdf_path)
+        p = HSBCMastercardParser(pdf_path, logger=logger)
 
     p.parse()
     return p

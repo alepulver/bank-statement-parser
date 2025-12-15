@@ -2,33 +2,40 @@ import os
 import unittest
 from pathlib import Path
 
-from hsbc_parser.dispatcher import parse_pdf
-from hsbc_parser.export import export_csv
+try:
+    from hsbc_parser.dispatcher import parse_pdf
+    from hsbc_parser.export import export_csv
+except ModuleNotFoundError:
+    parse_pdf = None
+    export_csv = None
 
 class TestSanity(unittest.TestCase):
     def test_parse_on_sample_pdfs_if_present(self):
-        # If user provides PDFs locally under data/input, run sanity checks.
-        in_dir = Path("data/input")
+        if parse_pdf is None or export_csv is None:
+            self.skipTest("Dependencies not installed (run inside .venv).")
+
+        # Prefer sample PDFs shipped with repo; fallback to user-provided `data/input`.
+        in_dir = Path("test_pdfs") if Path("test_pdfs").exists() else Path("data/input")
         if not in_dir.exists():
-            self.skipTest("No hay data/input (PDFs) para testear en este entorno.")
+            self.skipTest("No PDFs found (test_pdfs or data/input).")
 
         pdfs = list(in_dir.glob("*.pdf"))
         if not pdfs:
-            self.skipTest("No hay PDFs en data/input.")
+            self.skipTest("No PDFs to test.")
 
         parsers = [parse_pdf(str(p)) for p in pdfs]
-        df_s, df_t, df_w = export_csv(parsers, "data/output_test")
+        df_s, df_t, df_w = export_csv(parsers, "outputs/unittest_run")
 
-        self.assertGreater(len(df_t), 0, "No se extrajeron transacciones")
-        self.assertEqual(df_t["moneda"].isna().sum(), 0, "Hay transacciones sin moneda")
+        self.assertGreater(len(df_t), 0, "No transactions extracted")
+        self.assertEqual(df_t["moneda"].isna().sum(), 0, "Some transactions have empty currency")
 
         # Visa: no se deben colar headers como transacciones
         bad = df_t["descripcion"].astype(str).str.upper().str.contains("DETALLE DE TRANSACCION")
-        self.assertFalse(bool(bad.any()), "Se coló un header de tabla como transacción")
+        self.assertFalse(bool(bad.any()), "A table header was parsed as a transaction")
 
         # No ERROR warnings (si hay, alertar)
         if "level" in df_w.columns:
-            self.assertFalse(bool((df_w["level"] == "ERROR").any()), "Hay warnings nivel ERROR")
+            self.assertFalse(bool((df_w["level"] == "ERROR").any()), "There are ERROR warnings")
 
 if __name__ == "__main__":
     unittest.main()
